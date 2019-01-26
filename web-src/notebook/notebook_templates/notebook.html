@@ -5,6 +5,13 @@
         {% include 'article_creation.html' %}
     </div>
     <div class="container">
+
+    <form name="myform" method="GET" action="{% url 'search' uid=notebook.id %}">
+
+        <input type="text" name="search" placeholder="Search" />
+
+    </form>
+
     {% if user.is_authenticated %}
         <br>
         <div class="row">
@@ -15,7 +22,7 @@
             <a href="" class="btn btn-sm btn-outline-success" data-toggle="collapse" data-target="#collapse"> <i class="fa fa-plus display-3"> Add Article</i></a>
         </div>
         <div class="col-2 grey-text">
-            <a href="{% url 'pdf' uid=notebook.id %}" class="btn btn-sm btn-outline-danger" > <i class="fa fa-download"></i> Export</a>
+{#            <a href="{% url 'pdf' uid=notebook.id %}" class="btn btn-sm btn-outline-danger" > <i class="fa fa-download"></i> Export</a>#}
         </div>
         </div>
         <br><hr><br>
@@ -39,9 +46,11 @@
                                 <div class="col-4">{{ article.title }}</div>
                                 <div class="col-6">
                                   <audio name="{{ article.id }}" preload= 'auto' controls  type="audio/mpeg"  src="{% static 'speech.mp3' %}"  ></audio>
-                                   <button  id='playfile' value='Play' class="btn btn-sm btn-info" name="{{ article.id }}" >Play</button>
+                                    <div style="float:right">
+                                   <button  id='playfile' value='Play' class="btn btn-sm btn-info" name="{{ article.id }}" >Convert</button>
+                                       </div>
                                 </div>
-                              <div class="col-2">
+                              <div class="col-2" style="float: right; text-align: center;">
                                   <a href="{% url 'edit_article' uid=article.id %}"><i class="fa fa-edit"></i> Edit </a>
                               </div>
                               </div>

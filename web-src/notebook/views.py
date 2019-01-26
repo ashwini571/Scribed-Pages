@@ -20,7 +20,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template import loader, RequestContext
 
-from weasyprint import HTML
+# from weasyprint import HTML
 import random
 import os
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../scribe-fdf862bebb2f.json"
@@ -262,12 +262,35 @@ def edit_article(request, uid):
         error.append(e)
     return render(request, 'edit_article.html', context={'title': article.title, 'article': article, 'form': form,
                                                          'messages': error})
+#
+# def html_to_pdf_view(request, uid):
+#     notebook = get_object_or_404(NoteBook, id=uid)
+#     articles = get_list_or_404(Article, notebook=notebook)
+#     template = loader.get_template('pdf_template.html')
+#     html = template.render({'notebook': notebook, 'articles': articles}, request)
+#     response = HttpResponse(content_type='application/pdf')
+#     HTML(string=html).write_pdf(response)
+#     return response
 
-def html_to_pdf_view(request, uid):
-    notebook = get_object_or_404(NoteBook, id=uid)
-    articles = get_list_or_404(Article, notebook=notebook)
-    template = loader.get_template('pdf_template.html')
-    html = template.render({'notebook': notebook, 'articles': articles}, request)
-    response = HttpResponse(content_type='application/pdf')
-    HTML(string=html).write_pdf(response)
-    return response
+
+def search(request,uid):
+    if request.method == 'GET':
+        name = request.GET.get('search')
+        try:
+            notebook = get_object_or_404(NoteBook, id=uid, owner=request.user)
+        except Exception as e:
+            context = {'title': '404', 'messages': [e, 'OR, You do not own this notebook!']}
+            return render(request, 'notebook.html', context=context)
+
+        try:
+            articles = Article.objects.filter(notebook=notebook).filter(title__icontains=name)
+        except:
+            articles = None
+
+        form = ArticleCreationForm()
+
+        context = {'title': notebook.name, 'notebook': notebook, 'articles': articles,
+                   'article_form': form} if articles is not None else {
+            'title': notebook.name, 'notebook': notebook, 'article_form': form}
+        return render(request, 'notebook.html', context=context)
+
