@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import home, create_notebook, view_notebook, getlist, getAudio, edit_notebook, edit_article ,search
+from .views import home, create_notebook, view_notebook, getlist, getAudio, edit_notebook, edit_article ,search,gettags
       # , html_to_pdf_view
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
       path('getAudio', getAudio, name='getAudio'),
       # path('notebook/pdf/<slug:uid>', html_to_pdf_view, name='pdf'),
       path('search/<slug:uid>',search,name='search'),
+      path('getTags',gettags,name='gettags'),
 ]

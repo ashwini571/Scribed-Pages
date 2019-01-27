@@ -19,11 +19,21 @@ from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template import loader, RequestContext
+from aylienapiclient import textapi
 
+client = textapi.Client("6c8e9997", "6627eacf9816f934272df0a0746398e8")
 # from weasyprint import HTML
 import random
 import os
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../scribe-fdf862bebb2f.json"
+
+
+def gettags(request):
+    text = request.GET.get('text')
+    sentiment = client.ClassifyByTaxonomy({'text': text,'taxonomy':'iptc-subjectcode'})
+    print(sentiment)
+    return JsonResponse(sentiment)
 
 
 def text2speech(text):
@@ -50,8 +60,7 @@ def text2speech(text):
 
 @csrf_exempt
 def getAudio(request):
-   if request.method == 'POST':
-
+    if request.method == 'POST':
         from gtts import gTTS
 
         # This module is imported so that we can
@@ -79,7 +88,7 @@ def getAudio(request):
         response = HttpResponse(f.read())
         response['Content-Type'] = 'audio/mp3'
         response['Content-Length'] = os.path.getsize(speech)
-        nothing ={"nothing":"nothing"}
+        nothing = {"nothing": "nothing"}
         return JsonResponse(nothing)
 
 
@@ -168,7 +177,7 @@ def view_notebook(request, uid):
         source = request.POST.get('source')
         print(content)
         try:
-            article = Article.objects.create(notebook=notebook, title=title, content=content,source=source)
+            article = Article.objects.create(notebook=notebook, title=title, content=content, source=source)
             # print('Article - {} created'.format(content[:100]))
 
             article.created_at = notebook.updated_at = now()
@@ -262,6 +271,8 @@ def edit_article(request, uid):
         error.append(e)
     return render(request, 'edit_article.html', context={'title': article.title, 'article': article, 'form': form,
                                                          'messages': error})
+
+
 #
 # def html_to_pdf_view(request, uid):
 #     notebook = get_object_or_404(NoteBook, id=uid)
@@ -270,10 +281,10 @@ def edit_article(request, uid):
 #     html = template.render({'notebook': notebook, 'articles': articles}, request)
 #     response = HttpResponse(content_type='application/pdf')
 #     HTML(string=html).write_pdf(response)
-#     return response
+#     return responseg
 
 
-def search(request,uid):
+def search(request, uid):
     if request.method == 'GET':
         name = request.GET.get('search')
         try:
@@ -293,4 +304,3 @@ def search(request,uid):
                    'article_form': form} if articles is not None else {
             'title': notebook.name, 'notebook': notebook, 'article_form': form}
         return render(request, 'notebook.html', context=context)
-

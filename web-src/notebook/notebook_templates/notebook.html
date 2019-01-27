@@ -6,11 +6,11 @@
     </div>
     <div class="container">
 
-    <form name="myform" method="GET" action="{% url 'search' uid=notebook.id %}">
+  <div class="col-3">    <form name="myform" method="GET" action="{% url 'search' uid=notebook.id %}">
 
-        <input type="text" name="search" placeholder="Search" />
+        <input class="form-control"type="text" name="search" placeholder="Search" / >
 
-    </form>
+    </form></div>
 
     {% if user.is_authenticated %}
         <br>
@@ -63,6 +63,7 @@
                                   <div class="col-3">
                                       <i class="fa fa-edit"></i> {{ article.created_at }}
                                   </div>
+                                  <div class="col-7"><a class="btn btn-sm " name="{{ article.id }}">Show Tags</a></div>
                                   <div class="col-2">
                                       <a onclick="window.location.href={{ article.source}}"> <i class="fa fa-fighter-jet"></i> Source </a>
                                   </div>
@@ -85,9 +86,34 @@
 
 
     <script>
+    function getTags(text,id) {
+
+        $.ajax({
+    url: "{% url 'gettags' %}",
+    type: "get",
+    data: {
+        text : text,
+
+    },
+   beforeSend:function(){
+
+   },
+    success: function(data){
+    alert(data.categories[0].label
+    );
+
+    },
+    error:function(){
+        alert("Error occured");
+    }
+});
+
+
+    }
 
 function submit(text,id){
-alert(text);
+{#alert(text);#}
+
 var playBtn = $("button[name="+id+"]");
 var audioBtn = $("audio[name="+id+"]");
 $.ajax({
@@ -102,8 +128,7 @@ $.ajax({
    },
     success: function(){
     playBtn.html("Playing");
-            {% load static %}
-    audioBtn.src = "{% static 'speech.mp3' %}";
+    location.reload();
     audioBtn[0].play();
 
     },
@@ -120,10 +145,17 @@ $.ajax({
                 {% for article in articles %}
     $('button[name ="{{ article.id }}"]').click(function(event){
         event.preventDefault();
-        console.log("submitted!")
+        console.log("submitted!");
         var text = $('div[name ="{{ article.id }}"]').html()
         submit(text,{{ article.id }});
     });
+    $('a[name="{{ article.id }}"]').click(function(event){
+        event.preventDefault();
+        console.log("retrieving");
+        var text =  $('div[name ="{{ article.id }}"]').html()
+                getTags(text,{{ article.id }});
+
+                    });
     {% endfor %}
     </script>
 
